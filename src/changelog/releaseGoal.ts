@@ -199,7 +199,7 @@ export function releaseChangelogGoal(...preConditions: Goal[]): Goal {
         displayName: "update changelog",
         workingDescription: "Updating changelog...",
         completedDescription: "Updated changelog",
-        failedDescription: "Updaing changelog failure",
+        failedDescription: "Updating changelog failure",
         isolated: true,
     });
 
