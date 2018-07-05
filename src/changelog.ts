@@ -48,7 +48,6 @@ export function changelogSupport(goal?: Goal): ExtensionPack {
             }
 
             sdm.addCommand(AddChangelogLabels);
-
             sdm.addEvent({
                     name: "UpdateChangelogOnIssue",
                     description: "Update CHANGELOG.md on a closed issue",
