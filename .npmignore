@@ -1,7 +1,6 @@
 .idea/
 .npmrc*
 config/
-graphql/
 src/
 test/
 tmp/
