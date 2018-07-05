@@ -20,7 +20,6 @@ import {
     formatDate,
 } from "../../src/changelog/releaseGoal";
 
-
 describe("release", () => {
 
     describe("formatDate", () => {
