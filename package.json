@@ -1,6 +1,6 @@
 {
   "name": "@atomist/sdm-pack-changelog",
-  "version": "0.1.1",
+  "version": "0.1.0",
   "description": "Extension Pack for an Atomist SDM to manage changelogs",
   "author": {
     "name": "Atomist, Inc."
@@ -91,7 +91,6 @@
     "watch:compile": "tsc --project . --watch",
     "watch": "supervisor --watch build --quiet --exec npm -- run start"
   },
-  "main": "dist/index.js",
   "engines": {
     "node": "9.x.x",
     "npm": "6.x.x"

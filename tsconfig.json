@@ -4,12 +4,12 @@
     "target": "ES2017",
     "module": "CommonJS",
     "moduleResolution": "Node",
-    "resolveJsonModule": true,
     "jsx": "React",
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
-    "outDir": "dist",
+    "outDir": "build",
+    "rootDir": ".",
     "lib": [
       "DOM",
       "ES2017",
@@ -17,15 +17,14 @@
       "ScriptHost",
       "esnext.asynciterable"
     ],
-    "strict": true,
-    "noImplicitAny": false,
-    "noImplicitThis": false,
+    "strict": false,
     "strictNullChecks": false,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
   },
-  "include": [
-    "src/**/*.ts"
+  "exclude": [
+    "build",
+    "node_modules"
   ],
   "compileOnSave": true,
   "buildOnSave": false,

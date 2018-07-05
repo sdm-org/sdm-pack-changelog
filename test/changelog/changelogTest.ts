@@ -25,7 +25,7 @@ import {
     changelogToString,
     readChangelog,
     writeChangelog,
-} from "../../../src/editing/changelog/changelog";
+} from "../../src/changelog/changelog";
 
 describe("changelog", () => {
 
@@ -54,8 +54,8 @@ describe("changelog", () => {
         const p = { baseDir: appRoot.path } as any as GitProject;
         return readChangelog(p)
             .then(result => {
-                assert(result.versions.length > 2);
-                assert.equal(result.title, "Change Log");
+                assert(result.versions.length > 0);
+                assert.equal(result.title, "Changelog");
             });
     });
 
@@ -75,7 +75,7 @@ describe("changelog", () => {
         };
         return readChangelog(p).then(result => {
             const cl = addEntryToChangelog(entry, result, p);
-            assert.equal(cl.versions[0].parsed.Added[5],
+            assert.equal(cl.versions[0].parsed.Added[1],
                 "-   This is a test issue. [#1](https://github.com/atomist/test/issues/1)");
         });
     });
@@ -98,7 +98,7 @@ describe("changelog", () => {
         const cl = addEntryToChangelog(entry, result, p);
         const out = changelogToString(cl);
         // tslint:disable:max-line-length
-        assert(/^-   Add release to change log.\s+^-   Something useful was added. \[#1\]\(https:\/\/github.com\/atomist\/test\/issues\/1\)/m.test(out));
+        assert(/^-   Initial commit.\s+^-   Something useful was added. \[#1\]\(https:\/\/github.com\/atomist\/test\/issues\/1\)/m.test(out));
         assert(/\n$/.test(out));
     });
 
