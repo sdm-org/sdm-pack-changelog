@@ -197,7 +197,7 @@ export function releaseChangelogGoal(...preConditions: Goal[]): Goal {
         environment: ProductionEnvironment,
         orderedName: "3-release-change-log",
         displayName: "update changelog",
-        workingDescription: "Updating changelog...",
+        workingDescription: "Updating changelog",
         completedDescription: "Updated changelog",
         failedDescription: "Updating changelog failure",
         isolated: true,
