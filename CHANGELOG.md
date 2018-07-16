@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased](https://github.com/atomist/sdm-pack-changelog/compare/0.1.0...HEAD)
+
+### Fixed
+
+-   Support initial release from tree link. [#2](https://github.com/atomist/sdm-pack-changelog/issues/2)
+
 ## [0.1.0](https://github.com/atomist/sdm-pack-changelog/tree/0.1.0) - 2018-07-05
 
 ### Added
