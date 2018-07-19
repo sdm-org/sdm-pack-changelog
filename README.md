@@ -79,12 +79,6 @@ $ npm version 1.2.3
 $ git tag -a -m 'The ABC release' 1.2.3
 $ git push origin 1.2.3
 ```
-
-The Travis CI build (see badge at the top of this page) will publish
-the NPM module and automatically create a GitHub release using the tag
-name for the release and the comment provided on the annotated tag as
-the contents of the release notes.
-
 ---
 
 Created by [Atomist][atomist].
