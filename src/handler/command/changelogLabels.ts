@@ -63,29 +63,29 @@ export const AddChangelogLabels: CommandHandlerRegistration<ChangelogParameters>
     description: "Add changelog labels to a GitHub repo",
     tags: ["github", "changelog", "label"],
     paramsMaker: ChangelogParameters,
-    createCommand: () => async (ctx: HandlerContext, params: ChangelogParameters) => {
-        const api = github.api(params.githubToken, params.apiUrl);
+    listener: async cli => {
+        const api = github.api(cli.parameters.githubToken, cli.parameters.apiUrl);
 
         ChangelogLabels.forEach(async l => {
             const name = `changelog:${l}`;
             try {
                 await api.issues.getLabel({
                     name,
-                    repo: params.repo,
-                    owner: params.owner,
+                    repo: cli.parameters.repo,
+                    owner: cli.parameters.owner,
                 });
             } catch (err) {
                 await api.issues.createLabel({
-                    owner: params.owner,
-                    repo: params.repo,
+                    owner: cli.parameters.owner,
+                    repo: cli.parameters.repo,
                     name,
                     color: "C5DB71",
                 });
             }
         });
-        await ctx.messageClient.respond(success(
+        await cli.context.messageClient.respond(success(
             "Changelog",
-            `Successfully added changelog labels to ${bold(`${params.owner}/${params.repo}`)}`));
+            `Successfully added changelog labels to ${bold(`${cli.parameters.owner}/${cli.parameters.repo}`)}`));
         return Success;
     },
 };
