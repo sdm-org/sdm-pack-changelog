@@ -27,7 +27,10 @@ import * as _ from "lodash";
 import * as path from "path";
 import { promisify } from "util";
 import { ChangelogLabels } from "../handler/command/changelogLabels";
-import { ClosedIssueWithChangelog } from "../typings/types";
+import {
+    ClosedIssueWithChangelog,
+    CommitWithChangelog,
+} from "../typings/types";
 import * as parseChangelog from "./changelogParser";
 
 export const ChangelogTemplate = `# Changelog
@@ -43,7 +46,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 export interface ChangelogEntry {
     category: string; // "added" | "changed" | "deprecated" | "removed" | "fixed" | "security";
     title: string;
-    issue: number;
+    issue: string;
     url: string;
     qualifiers?: string[];
 }
@@ -63,36 +66,77 @@ export async function addChangelogEntryForClosedIssue(issue: ClosedIssueWithChan
     const url = `https://github.com/${issue.repo.owner}/${issue.repo.name}/issues/${issue.number}`;
     const categories = issue.labels.filter(l => l.name.startsWith("changelog:")).map(l => l.name.split(":")[1]);
     const qualifiers = issue.labels.some(l => l.name.toLocaleLowerCase() === "breaking") ? ["breaking"] : [];
+    const entry = {
+        title: issue.title,
+        label: issue.number.toString(),
+    };
 
+    await updateChangelog(p, url, categories, qualifiers, entry);
+    return Success;
+}
+
+/**
+ * Add entry to changelog for commits
+ * @param {CommitWithChangelog.Commit} commit
+ * @param {string} token
+ * @returns {Promise<HandlerResult>}
+ */
+export async function addChangelogEntryForCommit(commit: CommitWithChangelog.Commit,
+                                                 token: string): Promise<HandlerResult> {
+    const p = await GitCommandGitProject.cloned(
+        { token } as TokenCredentials,
+        GitHubRepoRef.from({ owner: commit.repo.owner, repo: commit.repo.name, branch: commit.pushes[0].branch }));
+
+    const url = `https://github.com/${commit.repo.owner}/${commit.repo.name}/commit/${commit.sha}`;
+    const categories = [];
+    ChangelogLabels.forEach(l => {
+        if (commit.message.toLowerCase().includes(`[changelog:${l}]`)) {
+            categories.push(l);
+        }
+    });
+
+    const entry = {
+        title: commit.message.split("\n")[0],
+        label: commit.sha.slice(0, 7),
+    };
+
+    await updateChangelog(p, url, categories, [], entry);
+    return Success;
+}
+
+async function updateChangelog(p: GitProject,
+                               url: string,
+                               categories: string[],
+                               qualifiers: string[],
+                               entry) {
     const cl = await p.getFile("CHANGELOG.md");
     if (cl) {
         // If changelog exists make sure it doesn't already contain the issue
         const content = await cl.getContent();
         if (!content.includes(url)) {
-            await updateAndWriteChangelog(p, categories, qualifiers, url, issue);
+            await updateAndWriteChangelog(p, categories, qualifiers, url, entry);
         }
     } else {
-        await updateAndWriteChangelog(p, categories, qualifiers, url, issue);
+        await updateAndWriteChangelog(p, categories, qualifiers, url, entry);
     }
 
     if (!(await p.isClean()).success) {
-        await p.commit(`Changelog: #${issue.number} to ${categories.join(", ")}
+        await p.commit(`Changelog: #${entry.label} to ${categories.join(", ")}
 
 [atomist:generated]`);
         await p.push();
     }
-    return Success;
 }
 
 async function updateAndWriteChangelog(p: GitProject,
                                        categories: string[],
                                        qualifiers: string[],
                                        url: string,
-                                       issue: ClosedIssueWithChangelog.Issue): Promise<any> {
+                                       issue: {title: string, label: string}): Promise<any> {
     let changelog = await readChangelog(p);
     for (const category of categories) {
         changelog = addEntryToChangelog(
-            { title: issue.title, url, issue: issue.number, category, qualifiers },
+            { title: issue.title, url, issue: issue.label, category, qualifiers },
             changelog,
             p);
     }

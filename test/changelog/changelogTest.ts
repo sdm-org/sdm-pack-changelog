@@ -68,7 +68,7 @@ describe("changelog", () => {
             },
         } as any as GitProject;
         const entry: ChangelogEntry = {
-            issue: 1,
+            issue: "1",
             title: "This is a test issue",
             category: "added",
             url: "https://github.com/atomist/test/issues/1",
@@ -89,7 +89,7 @@ describe("changelog", () => {
             },
         } as any as GitProject;
         const entry: ChangelogEntry = {
-            issue: 1,
+            issue: "1",
             title: "Something useful was added",
             category: "added",
             url: "https://github.com/atomist/test/issues/1",
@@ -111,7 +111,7 @@ describe("changelog", () => {
             },
         } as any as GitProject;
         const entry: ChangelogEntry = {
-            issue: 1,
+            issue: "1",
             title: "This is a test issue with some really long text and some more bla bla bla. And even some more and more and more.",
             category: "added",
             url: "https://github.com/atomist/test/issues/1",

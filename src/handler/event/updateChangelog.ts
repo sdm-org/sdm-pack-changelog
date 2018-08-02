@@ -22,8 +22,14 @@ import {
     Value,
 } from "@atomist/automation-client";
 import { OnEvent } from "@atomist/automation-client/onEvent";
-import { addChangelogEntryForClosedIssue } from "../../changelog/changelog";
-import { ClosedIssueWithChangelog } from "../../typings/types";
+import {
+    addChangelogEntryForClosedIssue,
+    addChangelogEntryForCommit,
+} from "../../changelog/changelog";
+import {
+    ClosedIssueWithChangelog,
+    CommitWithChangelog,
+} from "../../typings/types";
 
 @Parameters()
 export class TokenParameters {
@@ -31,7 +37,7 @@ export class TokenParameters {
     public orgToken: string;
 }
 
-export const UpdateChangelog: OnEvent<any, TokenParameters> =
+export const UpdateChangelogForIssueOrPullRequest: OnEvent<any, TokenParameters> =
     (e: EventFired<any>,
      ctx: HandlerContext,
      params: TokenParameters): Promise<HandlerResult> => {
@@ -41,3 +47,12 @@ export const UpdateChangelog: OnEvent<any, TokenParameters> =
         return addChangelogEntryForClosedIssue(e.data.PullRequest[0] as ClosedIssueWithChangelog.Issue, params.orgToken);
     }
 };
+
+export const UpdateChangelogForCommit: OnEvent<CommitWithChangelog.Subscription, TokenParameters> =
+    (e: EventFired<CommitWithChangelog.Subscription>,
+     ctx: HandlerContext,
+     params: TokenParameters): Promise<HandlerResult> => {
+        if (e.data.Commit) {
+            return addChangelogEntryForCommit(e.data.Commit[0], params.orgToken);
+        }
+    };
