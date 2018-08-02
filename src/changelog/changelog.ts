@@ -27,7 +27,10 @@ import * as _ from "lodash";
 import * as path from "path";
 import { promisify } from "util";
 import { ChangelogLabels } from "../handler/command/changelogLabels";
-import { ClosedIssueWithChangelog } from "../typings/types";
+import {
+    ClosedIssueWithChangelog,
+    CommitWithChangelog,
+} from "../typings/types";
 import * as parseChangelog from "./changelogParser";
 
 export const ChangelogTemplate = `# Changelog
@@ -41,15 +44,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 `;
 
 export interface ChangelogEntry {
-    category: string; // "added" | "changed" | "deprecated" | "removed" | "fixed" | "security";
+    category?: string; // "added" | "changed" | "deprecated" | "removed" | "fixed" | "security";
     title: string;
-    issue: number;
+    label: string;
     url: string;
-    qualifiers?: string[];
+    qualifiers: string[];
 }
 
 /**
- * Add entry to changelog for closed issue or pull request
+ * Add entry to changelog for closed label or pull request
  * @param {ClosedIssueWithChangelog.Issue} issue
  * @param {string} token
  * @returns {Promise<HandlerResult>}
@@ -63,36 +66,80 @@ export async function addChangelogEntryForClosedIssue(issue: ClosedIssueWithChan
     const url = `https://github.com/${issue.repo.owner}/${issue.repo.name}/issues/${issue.number}`;
     const categories = issue.labels.filter(l => l.name.startsWith("changelog:")).map(l => l.name.split(":")[1]);
     const qualifiers = issue.labels.some(l => l.name.toLocaleLowerCase() === "breaking") ? ["breaking"] : [];
+    const entry: ChangelogEntry = {
+        title: issue.title,
+        label: issue.number.toString(),
+        url,
+        qualifiers,
+    };
 
+    await updateChangelog(p, categories, entry);
+    return Success;
+}
+
+/**
+ * Add entry to changelog for commits
+ * @param {CommitWithChangelog.Commit} commit
+ * @param {string} token
+ * @returns {Promise<HandlerResult>}
+ */
+export async function addChangelogEntryForCommit(commit: CommitWithChangelog.Commit,
+                                                 token: string): Promise<HandlerResult> {
+    const p = await GitCommandGitProject.cloned(
+        { token } as TokenCredentials,
+        GitHubRepoRef.from({ owner: commit.repo.owner, repo: commit.repo.name, branch: commit.pushes[0].branch }));
+
+    const url = `https://github.com/${commit.repo.owner}/${commit.repo.name}/commit/${commit.sha}`;
+    const categories = [];
+    ChangelogLabels.forEach(l => {
+        if (commit.message.toLowerCase().includes(`[changelog:${l}]`)) {
+            categories.push(l);
+        }
+    });
+
+    const entry: ChangelogEntry = {
+        title: commit.message.split("\n")[0],
+        label: commit.sha.slice(0, 7),
+        url,
+        qualifiers: [],
+    };
+
+    await updateChangelog(p, categories, entry);
+    return Success;
+}
+
+async function updateChangelog(p: GitProject,
+                               categories: string[],
+                               entry: ChangelogEntry) {
     const cl = await p.getFile("CHANGELOG.md");
     if (cl) {
-        // If changelog exists make sure it doesn't already contain the issue
+        // If changelog exists make sure it doesn't already contain the label
         const content = await cl.getContent();
-        if (!content.includes(url)) {
-            await updateAndWriteChangelog(p, categories, qualifiers, url, issue);
+        if (!content.includes(entry.url)) {
+            await updateAndWriteChangelog(p, categories, entry);
         }
     } else {
-        await updateAndWriteChangelog(p, categories, qualifiers, url, issue);
+        await updateAndWriteChangelog(p, categories, entry);
     }
 
     if (!(await p.isClean()).success) {
-        await p.commit(`Changelog: #${issue.number} to ${categories.join(", ")}
+        await p.commit(`Changelog: #${entry.label} to ${categories.join(", ")}
 
 [atomist:generated]`);
         await p.push();
     }
-    return Success;
 }
 
 async function updateAndWriteChangelog(p: GitProject,
                                        categories: string[],
-                                       qualifiers: string[],
-                                       url: string,
-                                       issue: ClosedIssueWithChangelog.Issue): Promise<any> {
+                                       entry: ChangelogEntry): Promise<any> {
     let changelog = await readChangelog(p);
     for (const category of categories) {
-        changelog = addEntryToChangelog(
-            { title: issue.title, url, issue: issue.number, category, qualifiers },
+        changelog = addEntryToChangelog({
+                ...entry,
+                category,
+            }
+            ,
             changelog,
             p);
     }
@@ -135,7 +182,7 @@ export function addEntryToChangelog(entry: ChangelogEntry,
     const category = _.upperFirst(entry.category || "changed");
     const qualifiers = (entry.qualifiers || []).map(q => `**${q.toLocaleUpperCase()}**`).join(" ");
     const title = entry.title.endsWith(".") ? entry.title : `${entry.title}.`;
-    const line = `-   ${qualifiers && qualifiers.length > 0 ? `${qualifiers} ` : ""}${title} [#${entry.issue}](${entry.url})`;
+    const line = `-   ${qualifiers && qualifiers.length > 0 ? `${qualifiers} ` : ""}${title} [#${entry.label}](${entry.url})`;
     if (version.parsed[category]) {
         version.parsed[category].push(line);
 
@@ -171,12 +218,12 @@ ${changelog.description}`;
                 ChangelogLabels.indexOf(k1.toLocaleLowerCase()) - ChangelogLabels.indexOf(k2.toLocaleLowerCase()));
 
         for (const category of keys) {
-                content += `
+            content += `
 
 ### ${category}
 
 ${v.parsed[category].join("\n")}`;
-            }
+        }
 
     });
 
@@ -201,16 +248,16 @@ function readUnreleasedVersion(cl: any, p: GitProject): any {
     // Get Unreleased section or create if not already available
     if (cl && cl.versions && cl.versions.length > 0
         // This github.com version is really odd. Not sure what the parser thinks here
-        && (!cl.versions[ 0 ].version || cl.versions[ 0 ].version === "github.com")) {
-        version = cl.versions[ 0 ];
+        && (!cl.versions[0].version || cl.versions[0].version === "github.com")) {
+        version = cl.versions[0];
     } else {
         version = {
             title: `[Unreleased](https://github.com/${p.id.owner}/${p.id.repo}/${
                 cl.versions && cl.versions.filter(v => v.version !== "0.0.0").length > 0 ?
-                    `compare/${cl.versions[ 0 ].version}...HEAD` : "tree/HEAD"})`,
+                    `compare/${cl.versions[0].version}...HEAD` : "tree/HEAD"})`,
             parsed: {},
         };
-        cl.versions = [ version, ...cl.versions ];
+        cl.versions = [version, ...cl.versions];
     }
     return version;
 }
