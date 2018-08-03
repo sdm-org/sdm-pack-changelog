@@ -1,0 +1,19 @@
+subscription CommitWithChangelog {
+  Commit {
+    sha
+    pushes {
+      branch
+    }
+    message @matches(re: "([changelog:.*])")
+    repo {
+      owner
+      name
+      org {
+        provider {
+          url
+        }
+      }
+    }
+  }
+}
+

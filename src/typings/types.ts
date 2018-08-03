@@ -835,3 +835,41 @@ export namespace ClosedPullRequestWithChangelog {
     url?: string | null;
   };
 }
+export namespace CommitWithChangelog {
+  export type Variables = {};
+
+  export type Subscription = {
+    __typename?: "Subscription";
+    Commit?: Commit[] | null;
+  };
+
+  export type Commit = {
+    __typename?: "Commit";
+    sha?: string | null;
+    pushes?: Pushes[] | null;
+    message?: string | null;
+    repo?: Repo | null;
+  };
+
+  export type Pushes = {
+    __typename?: "Push";
+    branch?: string | null;
+  };
+
+  export type Repo = {
+    __typename?: "Repo";
+    owner?: string | null;
+    name?: string | null;
+    org?: Org | null;
+  };
+
+  export type Org = {
+    __typename?: "Org";
+    provider?: Provider | null;
+  };
+
+  export type Provider = {
+    __typename?: "GitHubProvider";
+    url?: string | null;
+  };
+}

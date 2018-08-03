@@ -24,7 +24,8 @@ import { executeReleaseChangelog } from "./changelog/releaseGoal";
 import { AddChangelogLabels } from "./handler/command/changelogLabels";
 import {
     TokenParameters,
-    UpdateChangelog,
+    UpdateChangelogForCommit,
+    UpdateChangelogForIssueOrPullRequest,
 } from "./handler/event/updateChangelog";
 
 /**
@@ -50,11 +51,11 @@ export function changelogSupport(goal?: Goal): ExtensionPack {
             sdm.addCommand(AddChangelogLabels);
             sdm.addEvent({
                     name: "UpdateChangelogOnIssue",
-                    description: "Update CHANGELOG.md on a closed issue",
+                    description: "Update CHANGELOG.md on a closed label",
                     tags: [ "github", "changelog", "issue" ],
                     subscription: subscription("closedIssueWithChangelogLabel"),
                     paramsMaker: TokenParameters,
-                    listener: UpdateChangelog,
+                    listener: UpdateChangelogForIssueOrPullRequest,
                 })
                 .addEvent({
                     name: "UpdateChangelogOnPullRequest",
@@ -62,7 +63,15 @@ export function changelogSupport(goal?: Goal): ExtensionPack {
                     tags: [ "github", "changelog", "pr" ],
                     subscription: subscription("closedPullRequestWithChangelogLabel"),
                     paramsMaker: TokenParameters,
-                    listener: UpdateChangelog,
+                    listener: UpdateChangelogForIssueOrPullRequest,
+                })
+                .addEvent({
+                    name: "UpdateChangelogOnCommit",
+                    description: "Update CHANGELOG.md on a commit",
+                    tags: [ "github", "changelog", "commit" ],
+                    subscription: subscription("commitWithChangelogLabel"),
+                    paramsMaker: TokenParameters,
+                    listener: UpdateChangelogForCommit,
                 });
         },
     };

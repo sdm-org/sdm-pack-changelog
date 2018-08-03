@@ -68,15 +68,16 @@ describe("changelog", () => {
             },
         } as any as GitProject;
         const entry: ChangelogEntry = {
-            issue: 1,
-            title: "This is a test issue",
+            label: "1",
+            title: "This is a test label",
             category: "added",
             url: "https://github.com/atomist/test/issues/1",
+            qualifiers: [],
         };
         return readChangelog(p).then(result => {
             const cl = addEntryToChangelog(entry, result, p);
             assert.equal(cl.versions[0].parsed.Added[0],
-                "-   This is a test issue. [#1](https://github.com/atomist/test/issues/1)");
+                "-   This is a test label. [#1](https://github.com/atomist/test/issues/1)");
         });
     });
 
@@ -89,10 +90,11 @@ describe("changelog", () => {
             },
         } as any as GitProject;
         const entry: ChangelogEntry = {
-            issue: 1,
+            label: "1",
             title: "Something useful was added",
             category: "added",
             url: "https://github.com/atomist/test/issues/1",
+            qualifiers: [],
         };
         const result = await readChangelog(p);
         const cl = addEntryToChangelog(entry, result, p);
@@ -111,8 +113,8 @@ describe("changelog", () => {
             },
         } as any as GitProject;
         const entry: ChangelogEntry = {
-            issue: 1,
-            title: "This is a test issue with some really long text and some more bla bla bla. And even some more and more and more.",
+            label: "1",
+            title: "This is a test label with some really long text and some more bla bla bla. And even some more and more and more.",
             category: "added",
             url: "https://github.com/atomist/test/issues/1",
             qualifiers: ["breaking"],
