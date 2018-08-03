@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased](https://github.com/atomist/sdm-pack-changelog/compare/0.1.1...HEAD)
 
+### Added
+
+-   Add changelog for commits. [#4](https://github.com/atomist/sdm-pack-changelog/issues/4)
+
 ## [0.1.1](https://github.com/atomist/sdm-pack-changelog/compare/0.1.0...0.1.1) - 2018-07-18
 
 ### Fixed
