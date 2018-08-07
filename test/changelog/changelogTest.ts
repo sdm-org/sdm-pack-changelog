@@ -76,7 +76,7 @@ describe("changelog", () => {
         };
         return readChangelog(p).then(result => {
             const cl = addEntryToChangelog(entry, result, p);
-            assert.equal(cl.versions[0].parsed.Added[0],
+            assert.equal(cl.versions[0].parsed.Added[cl.versions[0].parsed.Added.length - 1],
                 "-   This is a test label. [#1](https://github.com/atomist/test/issues/1)");
         });
     });
@@ -100,7 +100,7 @@ describe("changelog", () => {
         const cl = addEntryToChangelog(entry, result, p);
         const out = changelogToString(cl);
         // tslint:disable:max-line-length
-        assert(/### Added\s+^-   Something useful was added. \[#1\]\(https:\/\/github.com\/atomist\/test\/issues\/1\)/m.test(out));
+        assert(/-   Something useful was added. \[#1\]\(https:\/\/github.com\/atomist\/test\/issues\/1\)/m.test(out));
         assert(/\n$/.test(out));
     });
 
