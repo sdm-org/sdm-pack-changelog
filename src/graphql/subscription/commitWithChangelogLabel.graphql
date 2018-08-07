@@ -4,7 +4,7 @@ subscription CommitWithChangelog {
     pushes {
       branch
     }
-    message @matches(re: "([changelog:.*])")
+    message @matches(re: "(?s).*\\[changelog:.*\\].*") @required
     repo {
       owner
       name
