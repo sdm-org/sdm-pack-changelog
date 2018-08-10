@@ -27,8 +27,8 @@ import {
     addChangelogEntryForCommit,
 } from "../../changelog/changelog";
 import {
-    ClosedIssueWithChangelog,
-    CommitWithChangelog,
+    ClosedIssueWithChangelogLabel,
+    PushWithChangelogLabel,
 } from "../../typings/types";
 
 @Parameters()
@@ -42,17 +42,21 @@ export const UpdateChangelogForIssueOrPullRequest: OnEvent<any, TokenParameters>
      ctx: HandlerContext,
      params: TokenParameters): Promise<HandlerResult> => {
     if (e.data.Issue) {
-        return addChangelogEntryForClosedIssue(e.data.Issue[0] as ClosedIssueWithChangelog.Issue, params.orgToken);
+        return addChangelogEntryForClosedIssue(
+            e.data.Issue[0] as ClosedIssueWithChangelogLabel.Issue,
+            params.orgToken);
     } else if (e.data.PullRequest) {
-        return addChangelogEntryForClosedIssue(e.data.PullRequest[0] as ClosedIssueWithChangelog.Issue, params.orgToken);
+        return addChangelogEntryForClosedIssue(
+            e.data.PullRequest[0] as ClosedIssueWithChangelogLabel.Issue,
+            params.orgToken);
     }
 };
 
-export const UpdateChangelogForCommit: OnEvent<CommitWithChangelog.Subscription, TokenParameters> =
-    (e: EventFired<CommitWithChangelog.Subscription>,
+export const UpdateChangelogForCommit: OnEvent<PushWithChangelogLabel.Subscription, TokenParameters> =
+    (e: EventFired<PushWithChangelogLabel.Subscription>,
      ctx: HandlerContext,
      params: TokenParameters): Promise<HandlerResult> => {
-        if (e.data.Commit) {
-            return addChangelogEntryForCommit(e.data.Commit[0], params.orgToken);
+        if ((e.data.Push)) {
+            return addChangelogEntryForCommit(e.data.Push[0], params.orgToken);
         }
     };

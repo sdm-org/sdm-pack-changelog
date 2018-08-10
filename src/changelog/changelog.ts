@@ -28,8 +28,8 @@ import * as path from "path";
 import { promisify } from "util";
 import { ChangelogLabels } from "../handler/command/changelogLabels";
 import {
-    ClosedIssueWithChangelog,
-    CommitWithChangelog,
+    ClosedIssueWithChangelogLabel,
+    PushWithChangelogLabel,
 } from "../typings/types";
 import * as parseChangelog from "./changelogParser";
 
@@ -53,11 +53,11 @@ export interface ChangelogEntry {
 
 /**
  * Add entry to changelog for closed label or pull request
- * @param {ClosedIssueWithChangelog.Issue} issue
+ * @param {ClosedIssueWithChangelogLabel.Issue} issue
  * @param {string} token
  * @returns {Promise<HandlerResult>}
  */
-export async function addChangelogEntryForClosedIssue(issue: ClosedIssueWithChangelog.Issue,
+export async function addChangelogEntryForClosedIssue(issue: ClosedIssueWithChangelogLabel.Issue,
                                                       token: string): Promise<HandlerResult> {
     const p = await GitCommandGitProject.cloned(
         { token } as TokenCredentials,
@@ -79,32 +79,35 @@ export async function addChangelogEntryForClosedIssue(issue: ClosedIssueWithChan
 
 /**
  * Add entry to changelog for commits
- * @param {CommitWithChangelog.Commit} commit
+ * @param {PushWithChangelogLabel.Push} commit
  * @param {string} token
  * @returns {Promise<HandlerResult>}
  */
-export async function addChangelogEntryForCommit(commit: CommitWithChangelog.Commit,
+export async function addChangelogEntryForCommit(push: PushWithChangelogLabel.Push,
                                                  token: string): Promise<HandlerResult> {
     const p = await GitCommandGitProject.cloned(
         { token } as TokenCredentials,
-        GitHubRepoRef.from({ owner: commit.repo.owner, repo: commit.repo.name, branch: commit.pushes[0].branch }));
+        GitHubRepoRef.from({ owner: push.repo.owner, repo: push.repo.name, branch: push.branch }));
 
-    const url = `https://github.com/${commit.repo.owner}/${commit.repo.name}/commit/${commit.sha}`;
-    const categories = [];
-    ChangelogLabels.forEach(l => {
-        if (commit.message.toLowerCase().includes(`[changelog:${l}]`)) {
-            categories.push(l);
+    for (const commit of push.commits) {
+        const categories = [];
+        ChangelogLabels.forEach(l => {
+            if (commit.message.toLowerCase().includes(`[changelog:${l}]`)) {
+                categories.push(l);
+            }
+        });
+
+        const entry: ChangelogEntry = {
+            title: commit.message.split("\n")[0],
+            label: commit.sha.slice(0, 7),
+            url: `https://github.com/${push.repo.owner}/${push.repo.name}/commit/${commit.sha}`,
+            qualifiers: [],
+        };
+
+        if (categories.length > 0) {
+            await updateChangelog(p, categories, entry);
         }
-    });
-
-    const entry: ChangelogEntry = {
-        title: commit.message.split("\n")[0],
-        label: commit.sha.slice(0, 7),
-        url,
-        qualifiers: [],
-    };
-
-    await updateChangelog(p, categories, entry);
+    }
     return Success;
 }
 

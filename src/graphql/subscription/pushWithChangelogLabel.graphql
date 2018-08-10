@@ -1,0 +1,19 @@
+subscription pushWithChangelogLabel {
+  Push {
+    branch
+    commits @required {
+      sha
+      message @matches(re: "(?s).*\\[changelog:.*\\].*") @required
+    }
+    repo {
+      owner
+      name
+      org {
+        provider {
+          url
+        }
+      }
+    }
+  }
+}
+

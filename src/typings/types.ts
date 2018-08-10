@@ -759,7 +759,7 @@ export enum _Ordering {
   asc = "asc"
 }
 
-export namespace ClosedIssueWithChangelog {
+export namespace ClosedIssueWithChangelogLabel {
   export type Variables = {};
 
   export type Subscription = {
@@ -797,7 +797,7 @@ export namespace ClosedIssueWithChangelog {
     url?: string | null;
   };
 }
-export namespace ClosedPullRequestWithChangelog {
+export namespace ClosedPullRequestWithChangelogLabel {
   export type Variables = {};
 
   export type Subscription = {
@@ -835,25 +835,25 @@ export namespace ClosedPullRequestWithChangelog {
     url?: string | null;
   };
 }
-export namespace CommitWithChangelog {
+export namespace PushWithChangelogLabel {
   export type Variables = {};
 
   export type Subscription = {
     __typename?: "Subscription";
-    Commit?: Commit[] | null;
+    Push?: Push[] | null;
   };
 
-  export type Commit = {
-    __typename?: "Commit";
-    sha?: string | null;
-    pushes?: Pushes[] | null;
-    message?: string | null;
+  export type Push = {
+    __typename?: "Push";
+    branch?: string | null;
+    commits?: Commits[] | null;
     repo?: Repo | null;
   };
 
-  export type Pushes = {
-    __typename?: "Push";
-    branch?: string | null;
+  export type Commits = {
+    __typename?: "Commit";
+    sha?: string | null;
+    message?: string | null;
   };
 
   export type Repo = {
