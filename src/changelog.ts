@@ -28,7 +28,6 @@ import {
     UpdateChangelogForIssueOrPullRequest,
 } from "./handler/event/updateChangelog";
 
-
 /**
  * Register support for managing CHANGELOG.md files in your SDM.
  * Note: If a goal gets passed to this function, this pack will
