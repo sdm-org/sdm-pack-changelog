@@ -65,7 +65,7 @@ export function changelogSupport(goal?: Goal): ExtensionPack {
                     paramsMaker: TokenParameters,
                     listener: UpdateChangelogForIssueOrPullRequest,
                 })
-                .addEvent({ 
+                .addEvent({
                     name: "UpdateChangelogOnPush",
                     description: "Update CHANGELOG.md on a push",
                     tags: [ "github", "changelog", "commit" ],
