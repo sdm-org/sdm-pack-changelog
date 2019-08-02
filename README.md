@@ -3,7 +3,7 @@
 [![atomist sdm goals](http://badge.atomist.com/T29E48P34/atomist/sdm-pack-changelog/357b4015-f10d-4ebd-a825-0d033c1e75bd)](https://app.atomist.com/workspace/T29E48P34)
 
 Extension Pack for an Atomist SDM to manage changelogs as per [Keep a Changelog](http://keepachangelog.com/).
-
+ 
 This extension pack lets you install the issue and pull request labels via `@atomist add changelog labels`.
 When those labels (changelog:* prefix) are assigned to issues and/or pull requests, those issues and pull requests
 will be added to the `CHANGELOG.md` once they get closed.
