@@ -34,12 +34,12 @@
     "remark-reference-links": "^4.0.1"
   },
   "peerDependencies": {
-    "@atomist/automation-client": ">=1.6.0",
+    "@atomist/automation-client": "^1.5.3",
     "@atomist/sdm": ">=1.6.0",
     "@atomist/sdm-core": ">=1.6.0"
   },
   "devDependencies": {
-    "@atomist/automation-client": "^1.6.0",
+    "@atomist/automation-client": "^1.5.3",
     "@atomist/sdm": "^1.6.0",
     "@atomist/sdm-core": "^1.6.1",
     "@types/lodash": "^4.14.109",
